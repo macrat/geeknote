@@ -200,15 +200,15 @@ def showNote(note, id, shardId):
     printLine(note.title)
     separator("=", "META")
     printLine("Notebook: %s" % note.notebookName)
-    printLine("Created: %s" % printDate(note.created))
-    printLine("Updated: %s" % printDate(note.updated))
+    printLine("Created: %s" % printDateTime(note.created))
+    printLine("Updated: %s" % printDateTime(note.updated))
     for key, value in note.attributes.__dict__.items():
         if value and key not in ('reminderOrder', 'reminderTime', 'reminderDoneTime'):
             printLine("%s: %s" % (key, value))
     separator("|", "REMINDERS")
     printLine("Order: %s" % str(note.attributes.reminderOrder))
-    printLine("Time: %s" % printDate(note.attributes.reminderTime))
-    printLine("Done: %s" % printDate(note.attributes.reminderDoneTime))
+    printLine("Time: %s" % printDateTime(note.attributes.reminderTime))
+    printLine("Done: %s" % printDateTime(note.attributes.reminderDoneTime))
     separator("-", "CONTENT")
     if note.tagNames:
         printLine("Tags: %s" % ', '.join(note.tagNames))
@@ -233,7 +233,7 @@ def showUser(user, fullInfo):
 
     if fullInfo:
         printLine("%s: %.2f MB" % ("Upload limit".ljust(colWidth, " "), (int(user.accounting.uploadLimit) / 1024 / 1024)))
-        printLine("%s: %s" % ("Upload limit end".ljust(colWidth, " "), printDate(user.accounting.uploadLimitEnd)))
+        printLine("%s: %s" % ("Upload limit end".ljust(colWidth, " "), printDateTime(user.accounting.uploadLimitEnd)))
         printLine("%s: %s" % ("Timezone".ljust(colWidth, " "), user.timezone))
 
 
@@ -274,10 +274,9 @@ def printList(listItems, title="", showSelector=False,
     for key, item in enumerate(listItems):
         key += 1
 
-        printLine("%s : %s%s%s%s%s%s" % (
+        printLine("%s : %s : %s%s%s%s" % (
             item.guid if showGUID and hasattr(item, 'guid') else str(key).rjust(3, " "),
-            printDate(item.created).ljust(11, " ") if hasattr(item, 'created') else '',
-            printDate(item.updated).ljust(11, " ") if hasattr(item, 'updated') else '',
+            printDateTime(item.updated).ljust(11, " ") if hasattr(item, 'updated') else '',
             item.notebookName.ljust(18, " ") if showNotebook and hasattr(item, 'notebookName') else '',
             item.title if hasattr(item, 'title') else item.name,
             "".join(map(lambda s: " #" + s, item.tagGuids)) if showTags and hasattr(item, 'tagGuids') and item.tagGuids else '',
@@ -320,6 +319,12 @@ def printDate(timestamp):
         return "None"
     else:
         return datetime.datetime.fromtimestamp(timestamp / 1000).strftime(config.DEF_DATE_FORMAT)
+
+def printDateTime(timestamp):
+    if timestamp is None:
+        return "None"
+    else:
+        return datetime.datetime.fromtimestamp(timestamp / 1000).strftime(config.DEF_DATE_AND_TIME_FORMAT)
 
 def printLine(line, endLine="\n", out=None):
     # "out = sys.stdout" makes it hard to mock
